@@ -2,3 +2,8 @@
 /.build
 /Packages
 /*.xcodeproj
+
+Package.resolved
+!*.xcodeproj/project.pbxproj
+!*.xcodeproj/xcshareddata/
+!*.xcodeproj/*_Info.plist
