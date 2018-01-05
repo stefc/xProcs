@@ -21,8 +21,19 @@ class StrTests: XCTestCase {
         XCTAssertEqual(padded__, "_____Hello")
     }
 
+    func testEncryptDecrypt() {
+        let key = 4711
+        let cleartext = "Hello World"
+        let encrypted = encrypt(cleartext, key: key)
+        XCTAssertEqual("Wsd5VOYB8jzWWHQ=", encrypted)
+        XCTAssertNotEqual(cleartext, encrypted)
+        let decrypted = decrypt(encrypted, key: key)
+        XCTAssertEqual(cleartext, decrypted)
+    }
+
     static var allTests = [
         ("testPadR", testPadR),
         ("testPadL", testPadL),
+        ("testEncryptDecrypt", testEncryptDecrypt),
     ]
 }

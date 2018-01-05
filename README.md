@@ -20,6 +20,7 @@ Delivers two areas now
 
 - Integer Functions  (IntFuncs)
 - String Functions (StrFuncs)
+- Decimal Functions (DecimalFuncs)
 
 One hint about the goals of that lib. I don't want to make it platform or UI dependend, all functions should be pure stuff that can be usefull for iOS, tvOS, macOs, Linux, Rasperry, Docker ...
 

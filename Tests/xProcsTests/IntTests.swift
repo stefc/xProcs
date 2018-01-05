@@ -42,11 +42,18 @@ class IntTests: XCTestCase {
         XCTAssertEqual(value, 64, "must be 1.600€ + 64€ = 1.664")
     }
 
+    func testIntPercentOperators() {
+        XCTAssertEqual( 6_000 %% 1_800, 30, "must be 30%")
+        XCTAssertEqual( 2 >% 250, 12_500, "must be 12.500€")
+        XCTAssertEqual( 4 <% 1_600, 64, "must be 1.600€ + 64€ = 1.664")
+    }
+
     static var allTests = [
         ("testIntPow", testIntPow),
         ("testIntPow10", testIntPow10),
         ("testIntPow2", testIntPow2),
         ("testIntOperator", testIntPowOperator),
         ("testIntPercent", testIntPercent),
+        ("testIntPercentOperators", testIntPercentOperators),
     ]
 }

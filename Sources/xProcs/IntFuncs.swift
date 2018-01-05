@@ -48,3 +48,26 @@ infix operator ** : ExponentiationPrecedence
 public func ** (_ base: Int, _ exp: Int) -> Int {
     return IntPow(base, exp: exp)
 }
+
+precedencegroup PercentagePrecedence {
+    associativity: right
+    higherThan: AdditionPrecedence
+}
+
+infix operator %% : PercentagePrecedence
+
+public func %% (_ b: Int, _ v: Int) -> Int {
+    return IntPercent(b:b, v:v)
+}
+
+infix operator >% : PercentagePrecedence
+
+public func >% (_ p: Int, _ v: Int) -> Int {
+    return IntBase(p:p, v:v)
+}
+
+infix operator <% : PercentagePrecedence
+
+public func <% (_ p: Int, _ b: Int) -> Int {
+    return IntValue(p:p, b:b)
+}
