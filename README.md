@@ -16,7 +16,7 @@ So it's time to present the xProcs Swift Library 1.1.0. It's small at this time 
 
 # Version 1.1.0
 
-Delivers two areas now 
+Delivers the following areas now 
 
 - Integer Functions  (IntFuncs)
 - String Functions (StrFuncs)

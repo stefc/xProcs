@@ -47,6 +47,13 @@ class IntTests: XCTestCase {
         XCTAssertEqual( 2 >% 250, 12_500, "must be 12.500€")
         XCTAssertEqual( 4 <% 1_600, 64, "must be 1.600€ + 64€ = 1.664")
     }
+    
+    func testIntRandom() {
+        for _ in 0..<100 {
+            let number = IntRandom(6)+1
+            XCTAssert( (number <= 6) && (number >= 1), "Not correct dice")
+        }
+    }
 
     static var allTests = [
         ("testIntPow", testIntPow),
@@ -55,5 +62,6 @@ class IntTests: XCTestCase {
         ("testIntOperator", testIntPowOperator),
         ("testIntPercent", testIntPercent),
         ("testIntPercentOperators", testIntPercentOperators),
+        ("testIntRandom", testIntRandom),
     ]
 }

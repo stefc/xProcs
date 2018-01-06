@@ -1,5 +1,7 @@
 import Foundation
 
+// string padding on the left and right side  padL() & padR() 
+
 public func padL(_ string : String, count: Int, char: Character = " ") -> String {
     guard string.count < count else {
         return string
@@ -13,6 +15,8 @@ public func padR(_ string : String, count: Int, char: Character = " ") -> String
     }
     return string + String(repeating: char, count: count - string.count) 
 }
+
+// simple string encryption with encrypt() and decrypt() 
 
 let C1 : UInt16 = 52845;
 let C2 : UInt16 = 22719;
@@ -32,20 +36,6 @@ public func encrypt(_ cleartext: String, key: Int) -> String
     }
     return data.base64EncodedString()
 }
-
-/*
- old: 72 new: 90 k: 41708
- old: 101 new: 199 k: 5622
- old: 108 new: 121 k: 14338
- old: 108 new: 84 k: 35165
- old: 111 new: 230 k: 8518
- old: 32 new: 1 k: 42490
- old: 87 new: 242 k: 21307
- old: 111 new: 60 k: 42090
- old: 114 new: 214 k: 13567
- old: 108 new: 88 k: 4298
- old: 100 new: 116 k: 37925
- */
 
 public func decrypt(_ chiper: String, key: Int) -> String {
     var data = Data(base64Encoded: chiper)!

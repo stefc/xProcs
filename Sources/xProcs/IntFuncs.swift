@@ -1,4 +1,5 @@
 import Foundation
+import Darwin
 
 public func IntPow(_ base: Int, exp: Int) -> Int {
     guard exp >= 0 else {
@@ -70,4 +71,32 @@ infix operator <% : PercentagePrecedence
 
 public func <% (_ p: Int, _ b: Int) -> Int {
     return IntValue(p:p, b:b)
+}
+
+// Random Number generator
+// Thanks to Justin Oullette
+// https://gist.github.com/jstn/f9d5437316879c9c448a
+
+public func IntRandom(_ upper: UInt64 = UInt64.max) -> UInt64 {
+    
+    func arc4random<T: ExpressibleByIntegerLiteral>(_ type: T.Type) -> T {
+        var r: T = 0
+        arc4random_buf(&r, MemoryLayout<T>.size)
+        return r
+    }
+
+    var m: UInt64
+    var r = arc4random(UInt64.self)
+    
+    if upper > UInt64(Int64.max) {
+        m = 1 + ~upper
+    } else {
+        m = ((UInt64.max - (upper * 2)) + 1) % upper
+    }
+    
+    while r < m {
+        r = arc4random(UInt64.self)
+    }
+    
+    return r % upper
 }
