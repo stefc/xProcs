@@ -6,7 +6,6 @@ import Foundation
 
 // typealias support with Swift 4 now generics, really cool !
 public typealias StateMonad<S,A> = (S) -> (value:A, state:S)
-public typealias MonadMaker<S,A,B> = (A) -> StateMonad<S,B>
 
 // Infix monad bind operator
 
@@ -17,26 +16,27 @@ precedencegroup BindPrecedence {
 
 infix operator >>- : BindPrecedence
 
-// Bind a MonadMaker to a StateMonad and produce a new StateMonad
+// 'Bind' a Transformer to a StateMonad and produce a new StateMonad
 // (>>=) :: State s a -> (a -> State s b) -> State s b
-public func >>- <S, A, B> (f: @escaping StateMonad<S, A>, g: @escaping MonadMaker<S, A, B>) -> StateMonad<S, B> {
+// let result = f >>- g
+// let result = "hello" + 1   +(string, int) -> string
+public func >>- <S, A, B> (f: @escaping StateMonad<S, A>, g: @escaping (A) -> StateMonad<S,B>) -> StateMonad<S, B> {
     return {
         (state: S) -> (B, S) in
         // Apply the f monad on the given state
-        let (fvalue, fstate) = f(state)
+        let fstate = f(state)
         
         // Build the new monad with the intermediate output
-        let gmonad = g(fvalue)
+        let gmonad = g(fstate.value)
         
         // Apply the new monad on the intermediate state
         //let (gvalue, gstate) and return it
-        return gmonad(fstate)
+        return gmonad(fstate.state)
     }
 }
 
 // Set the content value but let the state unchanged
 // aka 'return' in Haskel
-// 
 public func unit<S, A>(_ result: A) -> StateMonad<S, A> {
     return {
         (state: S) -> (A, S) in (result, state)
@@ -52,14 +52,15 @@ public func get<S>() -> StateMonad<S, S> {
     }
 }
 
+// put :: s -> m ()
 // Set the content to a dummy value and the state to newstate
-// ToDo : How we can avoid Type inference on A  ?
-public func put<S, A> (_ newstate: S, _ dummy: A) -> StateMonad<S, A> {
+public func put<S> (_ state: S) -> StateMonad<S, ()> {
     return {
-        (state: S) -> (A, S) in (dummy, newstate)
+        (S) -> ((), S) in ((), state)
     }
 }
 
+// gets :: (s -> a) -> State s a
 // Take a function that converts a state to a content and return it as new content
 public func gets<S, A> (transform: @escaping (S)  -> A) -> StateMonad<S, A> {
     return {
@@ -78,6 +79,7 @@ public func modify<S, A> (f: @escaping (S) -> S, null: A) -> StateMonad<S, A> {
         return (null, state)
     }
 }
+
 // unwrap a state monad computation as a function. (The inverse of state.)
 // runState :: State s a -> s -> (a, s)
 public func runState<S, A> (_ initialState: S, computation: StateMonad<S, A>) -> (A, S) {
@@ -95,5 +97,3 @@ public func evalState<S, A> (_ initialState: S, computation: StateMonad<S, A>) -
 public func execState<S, A> (_ initialState: S, computation: StateMonad<S, A>) -> S {
     return computation(initialState).state
 }
-
-
