@@ -10,6 +10,18 @@ import Foundation
 
 import xProcs
 
+extension Substring : HeadTailSeparation {
+    public func rest() -> SubSequence {
+        return self.dropFirst()
+    }
+}
+
+extension String : HeadTailSeparation {
+    public func rest() -> SubSequence {
+        return self.dropFirst()
+    }
+}
+
 class StateTests: XCTestCase {
 
     // https://wiki.haskell.org/State_Monad
@@ -30,6 +42,7 @@ class StateTests: XCTestCase {
         
         typealias GameValue = Int
         typealias GameState = (on:Bool, score:Int)
+        typealias GameStateMonad = StateMonad<GameState, GameValue>
     
         func increase(_ state: GameState) -> GameState {
             return (state.on, state.score + 1)
@@ -49,12 +62,15 @@ class StateTests: XCTestCase {
         
         // https://stackoverflow.com/a/39677331/1259996   String vs SubString
         
-        func playGame(x:Character, xs:Substring) -> StateMonad<GameState, GameValue> {
+        func playGame() -> GameStateMonad {
+            return get() >>- { (state) -> GameStateMonad in unit(state.score) }
+        }
+        
+        func playGame(_ x:Character, _ xs:Substring) -> GameStateMonad {
+            // (on, score) <- get >>= case x of ... >>= playGame xs
             return
-                // (on, score) <- get
                 get()
-                // case x of ...
-                >>- { (state) -> (StateMonad<GameState, ()>) in
+                >>- { (state) -> StateMonad<GameState, ()> in
                     switch(x) {
                         case "a" where state.on: return put(increase(state))
                         case "b" where state.on: return put(decrease(state))
@@ -62,27 +78,16 @@ class StateTests: XCTestCase {
                         default: return put(identity(state))
                     }
                 }
-                //  playGame xs
-                >>- { GameValue -> StateMonad<GameState, GameValue> in playGame(xs) }
+                >>- { GameValue -> GameStateMonad in playGame(xs) }
         }
         
-        func playGame() -> StateMonad<GameState, GameValue> {
-            return get()
-                >>- { (state) -> (StateMonad<GameState, GameValue>) in unit(state.score) }
-        }
         
         // playGame :: String -> State GameState GameValue
-        func playGame(_ s: Substring) -> StateMonad<GameState, GameValue> {
-            
-            return iif(s.first, { x in playGame(x:x, xs:s.dropFirst())}, { playGame()})
-            
-            //
-            // return iif(s, { (x,xs) in playGame(x:x, xs:xs)}, { playGame()})
-            //
+        func playGame(_ s: Substring) -> GameStateMonad {
+            return iif(s, { (x,xs) in playGame(x, xs)}, { playGame()})
         }
         
         let score = evalState((false, 0 ), computation: playGame("abcaaacbbcabbab"))
-        
         XCTAssertEqual(score, 2)
     }
 }
