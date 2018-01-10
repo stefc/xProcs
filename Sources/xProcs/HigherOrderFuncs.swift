@@ -16,10 +16,49 @@ public typealias Ternary<F,S,T,U> = (F,S,T) -> U
 
 public typealias TwiceUnary<T,U> = Unary<Unary<T,U>,Unary<T,U>>
 
+public indirect enum Result<V,A> : Hashable where V : Hashable, A : Hashable {
+    case Done(A)
+    case Call(V, A)
+    case Future(id: Int, lhs:Result<V,A>, rhs:Result<V,A>, op: (Result<V,A>,Result<V,A>) -> A)
+    
+    public var hashValue: Int {
+        switch self {
+        case .Done(let accu):
+            return accu.hashValue << 17 ^ 7
+        case .Call(let (value,_)):
+            return value.hashValue << 19 ^ 5
+        case .Future(let (id, _, _, _)):
+            return id.hashValue << 23 ^ 11
+        }
+    }
+}
+
+public func == <V,A>(lhs: Result<V,A>, rhs: Result<V,A>) -> Bool {
+    return true
+}
+
 public func recursive<T, U>(_ f: @escaping TwiceUnary<T,U>) -> Unary<T,U>
 {
     return { x in return f(recursive(f))(x) }
 }
+
+/*
+func withTrampoline<V,A>(_ f:@escaping Binary<V,A,Result<V,A>>) -> (Binary<V,A,A>) {
+    return { (current:V,accumulator:A)->A in
+        var res = f(current,accumulator)
+        while true {
+            switch res {
+            case let .Done(accu):
+                return accu
+            case let .Call(num, accu):
+                res = f(num,accu)
+            }
+            case let .Future(lhs,rhs,op):
+                res = lhs
+        }
+    }
+}
+*/
 
 // Memoization https://en.wikipedia.org/wiki/Memoization
 
@@ -58,35 +97,3 @@ public func iif<C:HeadTailSeparation,U>( _ collection: C, _ lhs: (C.Element, C.S
 
 // http://natecook.com/blog/2014/10/ternary-operators-in-swift/
 
-/*
- 
- Over Engineering at the moment  'x §§ then-clause § else-clause' !
- 
-precedencegroup HeadTailPrecedence {
-    associativity: left
-    higherThan: MultiplicationPrecedence
-}
-
-precedencegroup ThenElsePrecedence {
-    associativity: left
-    higherThan: HeadTailPrecedence
-}
-
-infix operator § : ThenElsePrecedence
-
-public func § <Element,SubSeq,U> (
-    thenBranch: @escaping (Element, SubSeq) -> U,
-    elseBranch: @escaping  () -> U) -> (left:  (Element, SubSeq) -> U, right: () -> U)
-{
-    return (left:thenBranch, right: elseBranch)
-}
-
-infix operator §§ : HeadTailPrecedence
-
-public func §§ <C:HeadTailSeparation,U>( lhs: C,
-                                           rhs: (left:(C.Element, C.SubSequence) -> U,right:() -> U)) -> U
-{
-    return iif( lhs, rhs.left, rhs.right)
-}
-
-*/
